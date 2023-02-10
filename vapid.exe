@@ -1,0 +1,27 @@
+from capstone import *
+import pefile
+
+pe = pefile.PE('sample.exe')
+entryPoint = pe.OPTIONAL_HEADER.AddressOfEntryPoint
+imageBase = pe.OPTIONAL_HEADER.ImageBase
+targetSection = pe.OPTIONAL_HEADER.AddressOfEntryPoint + pe.OPTIONAL_HEADER.ImageBase
+previousVirtualAddress = 0
+finalAdress = 0
+
+#print(hex(entryPoint))
+#print(hex(imageBase))
+#print(hex(targetSection))
+
+for section in pe.sections:  
+  if( hex(targetSection) < (hex(section.VirtualAddress + imageBase))):
+    offsetValue = targetSection - previousVirtualAddress
+    #print("target section exists before: ", hex(section.VirtualAddress + imageBase))
+    #print(offsetValue)
+    finalAddress = hex(offsetValue + physicalAddress)
+    break
+  else:
+    previousVirtualAddress = section.VirtualAddress + imageBase
+    physicalAddress = section.PointerToRawData
+
+
+print(finalAddress)
